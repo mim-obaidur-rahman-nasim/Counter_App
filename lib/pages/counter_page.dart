@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CounterPage extends StatefulWidget {
   const CounterPage({super.key});
@@ -10,10 +11,29 @@ class CounterPage extends StatefulWidget {
 class _CounterPageState extends State<CounterPage> {
   int _counter = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadCounter();
+  }
+
+  void _loadCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _counter = prefs.getInt('counter') ?? 0;
+    });
+  }
+
+  void _saveCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('counter', _counter);
+  }
+
   void _increamentCounter() {
     setState(() {
       if (_counter < 50) {
         _counter++;
+        _saveCounter();
       }
     });
   }
@@ -22,6 +42,7 @@ class _CounterPageState extends State<CounterPage> {
     setState(() {
       if (_counter > 0) {
         _counter--;
+        _saveCounter();
       }
     });
   }
@@ -29,6 +50,7 @@ class _CounterPageState extends State<CounterPage> {
   void _resetCounter() {
     setState(() {
       _counter = 0;
+      _saveCounter();
     });
   }
 
@@ -44,7 +66,7 @@ class _CounterPageState extends State<CounterPage> {
               "Counter App",
               style: TextStyle(
                   color: Colors.white,
-                  fontSize: 22,
+                  fontSize: 30,
                   fontWeight: FontWeight.bold),
             ),
             Text(
